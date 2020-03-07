@@ -1,9 +1,11 @@
 #![allow(dead_code)]
+pub mod cache;
 pub mod multiset;
 pub mod patch;
 pub mod traits;
 pub mod translate;
 
+use crate::cache::*;
 use crate::multiset::*;
 use crate::patch::*;
 use crate::traits::*;
@@ -21,29 +23,15 @@ fn main() {
   println!("{:?}", b.fold_group());
 }
 
-pub trait HasCache {
-  type Cache;
-}
-
-pub struct CachedValue<Op: HasCache, T> {
-  value: T,
-  cache: <Op as HasCache>::Cache,
-}
-
-pub struct CachedDelta<Op: HasCache, T: Patch> {
-  delta: Delta<T>,
-  cache: <Op as HasCache>::Cache,
-}
-
 pub struct Plus;
 pub struct PlusCache;
 impl HasCache for Plus {
   type Cache = PlusCache;
 }
 
-fn cplus(x: i32, y: i32) -> CachedValue<Plus, i32> {
-  CachedValue {
-    value: x + y,
+fn cplus(x: i32, y: i32) -> Caching<Plus, i32> {
+  Caching {
+    data: x + y,
     cache: PlusCache,
   }
 }
@@ -52,9 +40,9 @@ fn dplus(
   (_x, _y): (i32, i32),
   (dx, dy): (i32, i32),
   cache: PlusCache,
-) -> CachedDelta<Plus, i32> {
-  CachedDelta {
-    delta: Delta(dx + dy),
+) -> Caching<Plus, Delta<i32>> {
+  Caching {
+    data: Delta(dx + dy),
     cache,
   }
 }
@@ -65,9 +53,9 @@ impl HasCache for Div {
   type Cache = DivCache;
 }
 
-fn cdiv(x: i32, y: i32) -> CachedValue<Div, i32> {
-  CachedValue {
-    value: x / y,
+fn cdiv(x: i32, y: i32) -> Caching<Div, i32> {
+  Caching {
+    data: x / y,
     cache: DivCache,
   }
 }
@@ -76,9 +64,9 @@ fn ddiv(
   (x, y): (i32, i32),
   (dx, dy): (i32, i32),
   cache: DivCache,
-) -> CachedDelta<Div, i32> {
-  CachedDelta {
-    delta: Delta((x + dx) / (y + dy) - x / y),
+) -> Caching<Div, Delta<i32>> {
+  Caching {
+    data: Delta((x + dx) / (y + dy) - x / y),
     cache,
   }
 }
@@ -92,5 +80,5 @@ sum =
 */
 
 fn sum_multiset(b: Multiset<Sum<i32>>) -> Sum<i32> {
-    b.fold_group()
+  b.fold_group()
 }
