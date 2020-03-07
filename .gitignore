@@ -1,0 +1,6 @@
+/target
+**/*.rs.bk
+/tantivy
+/img
+/src/config.rs
+/.env
