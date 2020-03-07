@@ -4,6 +4,7 @@ pub mod multiset;
 pub mod patch;
 pub mod traits;
 pub mod translate;
+pub mod functions;
 
 use crate::cache::*;
 use crate::multiset::*;
@@ -71,14 +72,19 @@ fn ddiv(
   }
 }
 
-/*
-sum =
-  (\a0 ->
-     in let x0 = foldGroup a0
-        in let x1 = getSum x0
-           in x1)
-*/
-
-fn sum_multiset(b: Multiset<Sum<i32>>) -> Sum<i32> {
+fn multiset_sum(b: Multiset<Sum<i32>>) -> Sum<i32> {
   b.fold_group()
 }
+
+// data Fun a b c where
+//   Primitive ::
+//     !(a -> (b, c)) -> !(a -> Dt a -> c -> (Dt b, c)) -> Fun a b c
+//   Closure :: (NilTestable e, NilChangeStruct e, NFData e) =>
+//     !(Fun (e, a) b c) -> !e -> Fun a b c
+// data DFun a b c where
+//   DPrimitive ::
+//     !(a -> Dt a -> c -> (Dt b, c)) -> DFun a b c
+//   DClosure :: (NilTestable e, NilChangeStruct e, NFData e) =>
+//     !(Fun (e, a) b c) -> !(DFun (e, a) b c) -> !e -> !(Dt e) ->
+// DFun a b c
+

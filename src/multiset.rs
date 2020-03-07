@@ -1,5 +1,7 @@
 use crate::cache::*;
 use crate::traits::*;
+use crate::patch::*;
+use crate::functions::*;
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::iter::{FromIterator, Iterator};
@@ -53,14 +55,8 @@ impl<T: Hash + Eq + Clone> Multiset<T> {
   }
 }
 
-pub struct FoldGroup;
-
-impl HasCache for FoldGroup {
-  type Cache = FoldGroupCache;
-}
-
 pub struct FoldGroupCache;
-pub struct MapCache;
+pub struct MapCache<A, B, C>(HashMap<A, (B, C)>);
 pub struct FoldMapGroupCache;
 pub struct SingletonCache;
 
@@ -108,13 +104,18 @@ impl<T> Multiset<T> {
     self.map(f).fold_group()
   }
 
-  pub fn cached_fold_group(self) -> Caching<FoldGroup, T>
+  pub fn caching_fold_group(self) -> (T, FoldGroupCache)
   where
     T: AbGroup,
   {
-    Caching {
-      data: self.fold_group(),
-      cache: FoldGroupCache,
-    }
+      (self.fold_group(), FoldGroupCache)
   }
+
+  // pub fn caching_map<A, B, C, F>(self, f: Fun<A, B, C>) -> (Multiset<A>, MapCache<A, B, C>)
+  // where
+  //   A: Hash + Eq + Patch,
+  //   B: Patch,
+  // {
+    // let (r, _) = 
+  // }
 }
